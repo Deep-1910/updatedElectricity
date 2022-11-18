@@ -1,0 +1,1685 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <http:listener-config name="electricitybillpaymentapi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="electricitybillpaymentapi-config" api="resource::552c9f5a-ee9f-4705-8ce2-37e626900967:electricitybillpaymentapiv1:1.0.6:raml:zip:electricitybillpaymentapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="electricitybillpaymentapi-main">
+        <http:listener config-ref="electricitybillpaymentapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="electricitybillpaymentapi-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="electricitybillpaymentapi-console">
+        <http:listener config-ref="electricitybillpaymentapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="electricitybillpaymentapi-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\Payment\(paymentID):application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="paymentID">attributes.uriParams.'paymentID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Payment updated succesfully!!!"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\users\UpdatePass\(userName)\(oldPass)\(newPass):application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="userName">attributes.uriParams.'userName'</ee:set-variable>
+                <ee:set-variable variableName="oldPass">attributes.uriParams.'oldPass'</ee:set-variable>
+                <ee:set-variable variableName="newPass">attributes.uriParams.'newPass'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Password Updated Successfully!!!"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\customer\editCustomer:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Customer Updated Successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\manageReading\(ReadingId):application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="ReadingId">attributes.uriParams.'ReadingId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Reading updated."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\connection\modifyAddress:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Connection address updated."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\Payment\(paymentID):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="paymentID">attributes.uriParams.'paymentID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Payment deleted but not really"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\manageReading\(ReadingId):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="ReadingId">attributes.uriParams.'ReadingId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Reading deleted successfully."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="patch:\Payment\(paymentID):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="paymentID">attributes.uriParams.'paymentID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Payment updated"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\Bill:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  ID: 1,
+  date: "19/10/2022",
+  dueDate: "19/11/2022",
+  unitConsumed: 20,
+  billAmount: 120
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\BillBetweenDates\(d1)\(d2):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="d1">attributes.uriParams.'d1'</ee:set-variable>
+                <ee:set-variable variableName="d2">attributes.uriParams.'d2'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    ID: 1,
+    date: "19/10/2022",
+    dueDate: "19/11/2022",
+    unitConsumed: 20,
+    billAmount: 120
+  }, 
+  {
+    ID: 2,
+    date: "11/10/2022",
+    dueDate: "11/11/2022",
+    unitConsumed: 50,
+    billAmount: 500
+  }, 
+  {
+    ID: 3,
+    date: "13/10/2022",
+    dueDate: "13/11/2022",
+    unitConsumed: 40,
+    billAmount: 240
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\BillbyEmail\(email):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="email">attributes.uriParams.'email'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  ID: 1,
+  date: "19/10/2022",
+  dueDate: "19/11/2022",
+  unitConsumed: 20,
+  billAmount: 120
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\BillbyMobileNumber\(mNum):electricitybillpaymentapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="5230e450-eb38-494e-9a1d-8f354b23c837" name="getBIllByMobileNumber"/>
+    </flow>
+    <flow name="get:\CalculateEnergyBill\(Reading):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="Reading">attributes.uriParams.'Reading'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  billAmount: 120
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\EmailBillToCustomer\(email):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="email">attributes.uriParams.'email'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "email has been sent"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\Payment\(paymentID):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="paymentID">attributes.uriParams.'paymentID'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    paymentID: 1,
+    paymentDate: "2022-09-02",
+    totalPaymentCharges: 20,
+    totalPaid: 2000,
+    status: "paid",
+    paymentMode: "CREDIT"
+  }, 
+  {
+    paymentID: 2,
+    paymentDate: "2022-09-03",
+    totalPaymentCharges: 20,
+    totalPaid: 4000,
+    status: "paid",
+    paymentMode: "DEBIT"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\activeConnections\(district):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="district">attributes.uriParams.'district'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\activeConnections\(pincode):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="pincode">attributes.uriParams.'pincode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\activeConnections\(state):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="state">attributes.uriParams.'state'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\activeConnections\(village):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="village">attributes.uriParams.'village'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\connByCNum\(consumerNumber):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="consumerNumber">attributes.uriParams.'consumerNumber'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  connectionId: 1,
+  consumerNumber: 1234,
+  applicationDate: "2021-01-02",
+  connectionDate: "2021-02-02",
+  connectionStatus: true,
+  customerConnection: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  },
+  connectionAddress: {
+    addressId: 1,
+    flatOrHouseNumber: 10,
+    buildingName: "King's plaza",
+    landmark: "Reave street",
+    village: "Cuncolim",
+    taluka: "South",
+    district: "Salcete",
+    state: "Goa",
+    pincode: "400344"
+  },
+  connectionType: "NON_INDUSTRIAL"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  connectionId: 1,
+  consumerNumber: 1234,
+  applicationDate: "2021-01-02",
+  connectionDate: "2021-02-02",
+  connectionStatus: true,
+  customerConnection: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  },
+  connectionAddress: {
+    addressId: 1,
+    flatOrHouseNumber: 10,
+    buildingName: "King's plaza",
+    landmark: "Reave street",
+    village: "Cuncolim",
+    taluka: "South",
+    district: "Salcete",
+    state: "Goa",
+    pincode: "400344"
+  },
+  connectionType: "NON_INDUSTRIAL"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\custByCNum\(consumerNumber):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="consumerNumber">attributes.uriParams.'consumerNumber'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="get:\connection\custByCNum\(consumerNumber):electricitybillpaymentapi-config" />
+    </flow>
+    <flow name="get:\findMeterReadingByConsumerNumber:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    ReadingId: 101,
+    "Units Consumed": 30,
+    "Reading Photo": "EEs1233455",
+    "Reading Date": "2022/11/01",
+    PricePerUnits: 10
+  }, 
+  {
+    ReadingId: 102,
+    "Units Consumed": 25,
+    "Reading Photo": "EEs1233475",
+    "Reading Date": "2022/10/01",
+    PricePerUnits: 10
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\findMeterReadingByConsumerNumberAndBillDate:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    ReadingId: 101,
+    "Units Consumed": 30,
+    "Reading Photo": "EEs1233455",
+    "Reading Date": "2022/11/01",
+    PricePerUnits: 10
+  }, 
+  {
+    ReadingId: 102,
+    "Units Consumed": 25,
+    "Reading Photo": "EEs1233475",
+    "Reading Date": "2022/10/01",
+    PricePerUnits: 10
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users\forgotPass\(userName):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="userName">attributes.uriParams.'userName'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"userName:User userId:101 password:User@2000"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer\getCustByAdhar\(adhar):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="adhar">attributes.uriParams.'adhar'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  CustomerExample: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer\getCustByEmail\(mail):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="mail">attributes.uriParams.'mail'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  CustomerExample: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer\getCustById\(id):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  CustomerExample: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer\getCustByMobile\(mobile):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="mobile">attributes.uriParams.'mobile'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  CustomerExample: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customer\getCustByName\(fname):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="fname">attributes.uriParams.'fname'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  CustomerExample: {
+    addharNumber: 456378652345,
+    customerId: 1,
+    email: "Halliee@gmail.com",
+    firstName: "Halliee",
+    gender: "F",
+    lastName: "Brewer",
+    middleName: "K",
+    mobileNumber: 9856347823
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\inactiveConnections\(district):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="district">attributes.uriParams.'district'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\inactiveConnections\(pincode):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="pincode">attributes.uriParams.'pincode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\inactiveConnections\(state):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="state">attributes.uriParams.'state'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\connection\inactiveConnections\(village):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="village">attributes.uriParams.'village'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    connectionId: 1,
+    consumerNumber: 1234,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 1,
+      flatOrHouseNumber: 10,
+      buildingName: "King's plaza",
+      landmark: "Reave street",
+      village: "Cuncolim",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }, 
+  {
+    connectionId: 2,
+    consumerNumber: 2345,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: false,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 2,
+      flatOrHouseNumber: 11,
+      buildingName: "Queen's plaza",
+      landmark: "Naive street",
+      village: "Assolna",
+      taluka: "South",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "400544"
+    },
+    connectionType: "INDUSTRIAL"
+  }, 
+  {
+    connectionId: 3,
+    consumerNumber: 3456,
+    applicationDate: "2021-01-02",
+    connectionDate: "2021-02-02",
+    connectionStatus: true,
+    customerConnection: {
+      customerConnection: null,
+      addharNumber: 456378652345,
+      customerId: 1,
+      email: "Halliee@gmail.com",
+      firstName: "Halliee",
+      gender: "F",
+      lastName: "Brewer",
+      middleName: "K",
+      mobileNumber: 9856347823
+    },
+    connectionAddress: {
+      addressId: 3,
+      flatOrHouseNumber: 12,
+      buildingName: "Jack's plaza",
+      landmark: "Jack street",
+      village: "Quepem",
+      taluka: "North",
+      district: "Salcete",
+      state: "Goa",
+      pincode: "420344"
+    },
+    connectionType: "NON_INDUSTRIAL"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users\loginU\(userName)\(pass):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="userName">attributes.uriParams.'userName'</ee:set-variable>
+                <ee:set-variable variableName="pass">attributes.uriParams.'pass'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"userName:User userId:101 password:User@2000"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\manageReading\(ReadingId):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="ReadingId">attributes.uriParams.'ReadingId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "Units Consumed": 30,
+  "Reading Photo": "EEs1233455",
+  "Reading Date": "2022/11/10",
+  PricePerUnits: 10
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users\searchUserByUserId:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"userName:User userId:101 password:User@2000"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users\searchUserByUserName:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"userName:User userId:101 password:User@2000"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\users\Register:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "User Added Successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\addPayment:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Payment Added"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\connection\newConnection:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "New Connection added."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\customer\newCustomer:application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Customer Added Successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\payBill\(consumerNumber):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="consumerNumber">attributes.uriParams.'consumerNumber'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Bill paid!!"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\selfSubmitReading\(consumerNumber):application\json:electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="consumerNumber">attributes.uriParams.'consumerNumber'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Reading submitted successfully."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\sendEmailOnPayment\(consumerNumber):electricitybillpaymentapi-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="consumerNumber">attributes.uriParams.'consumerNumber'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Email sent successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

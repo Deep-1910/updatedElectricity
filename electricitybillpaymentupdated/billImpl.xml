@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getBIllByMobileNumber" doc:id="b390f2ff-1f9b-4a41-a4fc-9d29c738db83" >
+		<validation:is-number doc:name="Is number" doc:id="1dffaba3-8527-4d5d-bbad-260cd2d23a7b" value="#[attribute.uriParams.mNum]" minValue="6000000000" maxValue="9999999999" numberType="LONG" message="Enter Valid Moblie NUmber"/>
+	</flow>
+	<flow name="postBill" doc:id="883ecfea-75c7-4187-91d3-10bfa7518c7d" >
+	</flow>
+</mule>
